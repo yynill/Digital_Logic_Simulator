@@ -1,0 +1,16 @@
+              # program_state = "drag"
+
+            # # Handle mouse movement during "drag" mode
+            # if event.type == pygame.MOUSEMOTION and program_state == "drag":
+            #     if clicked_gate:
+            #         mouse_x, mouse_y = event.pos
+            #         clicked_gate.rect.x = mouse_x - SYMBOL_WIDTH / 2
+            #         clicked_gate.rect.y = mouse_y - SYMBOL_HEIGHT / 2
+
+            # # Handle mouse button release
+            # if event.type == pygame.MOUSEBUTTONUP:
+            #     if event.button == 1 and program_state == "drag":
+            #         program_state = "create"
+            #         clicked_gate = None
+
+            #         gates.append(new_gate)
