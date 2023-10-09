@@ -1,6 +1,5 @@
 import pygame
 
-
 # colors
 BACKGROUND_COLOR = (150, 150, 150,)
 WIRE_COLOR = (64, 64, 64)
@@ -43,11 +42,50 @@ SWITCH_OFF_IMG = pygame.image.load('./ASSETS/SWITCH_OFF.png')
 SWITCH_OFF = pygame.transform.scale(
     SWITCH_OFF_IMG, (SWITCH_WIDTH, SWITCH_HEIGHT))
 
+SWITCH_ON_IMG = pygame.image.load('./ASSETS/SWITCH_ON.png')
+SWITCH_ON = pygame.transform.scale(
+    SWITCH_ON_IMG, (SWITCH_WIDTH, SWITCH_HEIGHT))
+
 LIGHT_OFF_IMG = pygame.image.load('./ASSETS/LIGHT_OFF.png')
 LIGHT_OFF = pygame.transform.scale(
     LIGHT_OFF_IMG, (LIGHT_WIDTH, LIGHT_HEIGHT))
 
-# make IMG sharper by Screen shot of original zoomed in
+LIGHT_ON_IMG = pygame.image.load('./ASSETS/LIGHT_ON.png')
+LIGHT_ON = pygame.transform.scale(
+    LIGHT_ON_IMG, (LIGHT_WIDTH, LIGHT_HEIGHT))
+
+
+class DrawableObject:
+    def __init__(self, _id, image, x, y):
+        self.id = _id
+        self.image = image
+        self.x = x
+        self.y = y
+
+
+class Gate(DrawableObject):
+    def __init__(self, _id, gate_type, image, x, y):
+        super().__init__(_id, image, x, y)
+        self.gate_type = gate_type
+        # self.inputs = []  #  input connections
+        # self.outputs = []  #  output connections
+
+    def update(self):
+        #  logic to compute outputs based on inputs
+        pass
+
+
+class Switch(DrawableObject):
+    def __init__(self, _id, switch_state, image, x, y):
+        super().__init__(_id, image, x, y)
+        self.switch_state = switch_state  # True for on, False for off
+
+
+class Light(DrawableObject):
+    def __init__(self, _id, light_state, image, x, y):
+        super().__init__(_id, image, x, y)
+        self.light_state = light_state  # True for on, False for off
+
 
 gate_images = {
     'AND_GATE': AND_GATE,
@@ -57,23 +95,56 @@ gate_images = {
     'NOR_GATE': NOR_GATE
 }
 
-clicked_gate = None
-gates = []
+switch_images = {
+    'SWITCH_ON': SWITCH_ON,
+    'SWITCH_OFF': SWITCH_OFF,
+}
+
+light_images = {
+    'LIGHT_ON': LIGHT_ON,
+    'LIGHT_OFF': LIGHT_OFF
+}
+
+clicked_object = None
+objects = []
 
 
-class Gate:
-    def __init__(self, _id, gate_type, image, x, y):
-        self.id = _id
-        self.gate_type = gate_type
-        self.image = image
-        self.x = x
-        self.y = y
+def check_menu_switch_click(mouse_x, mouse_y):
+    new_switch_type = None
+    if 6*(SYMBOL_WIDTH+10) + 10 < mouse_x < (6*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
+        new_switch_type = 'SWITCH_OFF'
+
+    print(new_switch_type)
+    if new_switch_type is not None:
+        new_switch = Switch(len(objects), new_switch_type,
+                            switch_images[new_switch_type], mouse_x, mouse_y)
+
+        clicked_object = new_switch.id
+        objects.append(new_switch)
+        new_switch_type = None
+        return clicked_object
 
 
-def check_menu_click(mouse_x, mouse_y):
+def check_menu_light_click(mouse_x, mouse_y):
+    new_light_type = None
+    if 7*(SYMBOL_WIDTH+10) + 10 < mouse_x < (7*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
+        new_light_type = 'LIGHT_OFF'
+
+    print(new_light_type)
+    if new_light_type is not None:
+        new_light = Light(len(objects), new_light_type,
+                          light_images[new_light_type], mouse_x, mouse_y)
+
+        clicked_object = new_light.id
+        objects.append(new_light)
+        new_light_type = None
+        return clicked_object
+
+
+def check_menu_gate_click(mouse_x, mouse_y):
     if 0 < mouse_y < 10+SYMBOL_HEIGHT+10:
-        # AND-GATE
         new_gate_type = None
+        # AND-GATE
         if 0*(SYMBOL_WIDTH+10) + 10 < mouse_x < (0*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
             new_gate_type = 'AND_GATE'
         # NOT-GATE
@@ -91,49 +162,52 @@ def check_menu_click(mouse_x, mouse_y):
 
         print(new_gate_type)
         if new_gate_type is not None:
-            new_gate = Gate(len(gates), new_gate_type,
+            new_gate = Gate(len(objects), new_gate_type,
                             gate_images[new_gate_type], mouse_x, mouse_y)
 
-            clicked_gate = new_gate.id
-            gates.append(new_gate)
+            clicked_object = new_gate.id
+            objects.append(new_gate)
             new_gate_type = None
-            return clicked_gate
+            return clicked_object
+        else:
+            return None
 
 
-def drag_screen(mouse_x, mouse_y, gates):
+def drag_screen(mouse_x, mouse_y, objects):
     pass
-    # select all gates and wires and move all in the mocing position and amount from mouse
+    # select all objects and wires and move all in the mocing position and amount from mouse
     # think about zoom in and out
 
 
-def get_gate_by_position(mouse_x, mouse_y, gates):
-    for gate in gates:
-        if gate.x < mouse_x < gate.x + SYMBOL_WIDTH and gate.y < mouse_y < gate.y + SYMBOL_HEIGHT:
-            return get_gate_by_id(gate.id)
+def get_obj_by_position(mouse_x, mouse_y, objects):
+    for obj in objects:
+        if obj.x < mouse_x < obj.x + SYMBOL_WIDTH and obj.y < mouse_y < obj.y + SYMBOL_HEIGHT:
+            return get_obj_by_id(obj.id)
 
 
-def get_gate_by_id(gate_id):
-    for gate in gates:
-        if gate.id == gate_id:
-            return gate
+def get_obj_by_id(obj_id):
+    for obj in objects:
+        if obj.id == obj_id:
+            return obj
     return None
 
 
-def right_click_menu(mouse_x, mouse_y, this_gate):
+def right_click_menu(mouse_x, mouse_y, this_objects):
     pass
-    # gate id, gate type,
+    # obj id, objects type,
     # show gate connections and signals,
     # show gate inout output table,
     # show ecplanation,
     # delete gate button
+    # same with lamp and switches
 
 
 def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                nand_gate_btn, nor_gate_btn, gates, switch_off_btn, light_off_btn):
+                nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn):
     window.fill(BACKGROUND_COLOR)
 
-    for gate in gates:
-        window.blit(gate.image, (gate.x, gate.y))
+    for obj in objects:
+        window.blit(obj.image, (obj.x, obj.y))
     window.blit(menu_bar, (0, 0))
 
     window.blit(AND_GATE, (and_gate_btn.x, and_gate_btn.y))
@@ -149,8 +223,8 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
 
 def main():
-    global dragging_gate
-    dragging_gate = None
+    global dragging_object
+    dragging_object = None
 
     menu_bar = pygame.Surface((WIDTH, 10+SYMBOL_HEIGHT+10))
     menu_bar.fill((128, 128, 128))
@@ -185,48 +259,59 @@ def main():
                 run = False
 
             # left click
+            clicked_object_id = None
             if event.type == pygame.MOUSEBUTTONDOWN:
+
                 if event.button == 1:  # left mouse (button 1)
                     mouse_x, mouse_y = event.pos
 
-                    clicked_gate_id = check_menu_click(mouse_x, mouse_y)
-                    if clicked_gate_id is not None:
-                        dragging_gate = get_gate_by_id(clicked_gate_id)
-                    elif clicked_gate_id is None:
-                        dragging_gate = get_gate_by_position(
-                            mouse_x, mouse_y, gates)
+                    clicked_object_id = check_menu_gate_click(mouse_x, mouse_y)
+
+                    if clicked_object_id is None:
+                        clicked_object_id = check_menu_switch_click(
+                            mouse_x, mouse_y)
+
+                        if clicked_object_id is None:
+                            clicked_object_id = check_menu_light_click(
+                                mouse_x, mouse_y)
+
+                    if clicked_object_id is not None:
+                        dragging_object = get_obj_by_id(clicked_object_id)
+
+                    elif clicked_object_id is None:
+                        dragging_object = get_obj_by_position(
+                            mouse_x, mouse_y, objects)
 
             # drag mouse
             if event.type == pygame.MOUSEMOTION:
-                if dragging_gate != None:
+                if dragging_object != None:
                     mouse_x, mouse_y = event.pos
-                    dragging_gate.x = mouse_x - SYMBOL_WIDTH // 2
-                    dragging_gate.y = mouse_y - SYMBOL_HEIGHT // 2
+                    dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
+                    dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
                 else:
                     pass
 
-            # release gate
+            # release obj
             if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1 and dragging_gate is not None:
-                    if dragging_gate.y > SYMBOL_HEIGHT:
-                        # Release the gate by setting dragging_gate to None
-                        dragging_gate = None
+                if event.button == 1 and dragging_object is not None:
+                    if dragging_object.y > SYMBOL_HEIGHT:
+                        dragging_object = None
                 else:
-                    gates.remove(dragging_gate)
+                    objects.remove(dragging_object)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:  # right click
                     mouse_x, mouse_y = event.pos
-                    this_gate = get_gate_by_position(mouse_x, mouse_y, gates)
-                    right_click_menu(mouse_x, mouse_y, this_gate)
+                    this_obj = get_obj_by_position(mouse_x, mouse_y, objects)
+                    right_click_menu(mouse_x, mouse_y, this_obj)
 
             # middle mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
-                    drag_screen(mouse_x, mouse_y, gates)
+                    drag_screen(mouse_x, mouse_y, objects)
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                    nand_gate_btn, nor_gate_btn, gates, switch_off_btn, light_off_btn)
+                    nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn)
 
     pygame.quit()
 
