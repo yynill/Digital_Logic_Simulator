@@ -2,7 +2,7 @@ import pygame
 
 
 # colors
-BACKGROUND_COLOR = (100, 100, 100,)
+BACKGROUND_COLOR = (150, 150, 150,)
 WIRE_COLOR = (64, 64, 64)
 WIRE_COLOR_ACTIVE = (102, 255, 102)
 
@@ -12,8 +12,14 @@ pygame.display.set_caption('Digital Logic Simulator!')
 
 FPS = 60
 
-SYMBOL_WIDTH = 24*1.3
-SYMBOL_HEIGHT = 37*1.3
+SYMBOL_WIDTH = 36
+SYMBOL_HEIGHT = 55
+
+LIGHT_WIDTH = 40
+LIGHT_HEIGHT = 55
+
+SWITCH_WIDTH = 33
+SWITCH_HEIGHT = 55
 
 # load images
 
@@ -31,6 +37,17 @@ NAND_GATE = pygame.transform.scale(NAND_IMG, (SYMBOL_WIDTH, SYMBOL_HEIGHT))
 
 NOR_IMG = pygame.image.load('./ASSETS/NOR.png')
 NOR_GATE = pygame.transform.scale(NOR_IMG, (SYMBOL_WIDTH, SYMBOL_HEIGHT))
+
+
+SWITCH_OFF_IMG = pygame.image.load('./ASSETS/SWITCH_OFF.png')
+SWITCH_OFF = pygame.transform.scale(
+    SWITCH_OFF_IMG, (SWITCH_WIDTH, SWITCH_HEIGHT))
+
+LIGHT_OFF_IMG = pygame.image.load('./ASSETS/LIGHT_OFF.png')
+LIGHT_OFF = pygame.transform.scale(
+    LIGHT_OFF_IMG, (LIGHT_WIDTH, LIGHT_HEIGHT))
+
+# make IMG sharper by Screen shot of original zoomed in
 
 gate_images = {
     'AND_GATE': AND_GATE,
@@ -83,14 +100,16 @@ def check_menu_click(mouse_x, mouse_y):
             return clicked_gate
 
 
-def get_existing_gate(mouse_x, mouse_y, gates):
-    for gate in gates:
-        if gate.x < mouse_x < gate.x + SYMBOL_WIDTH and gate.y < mouse_y < gate.y + SYMBOL_HEIGHT:
-            return gate.id
-
-
 def drag_screen(mouse_x, mouse_y, gates):
     pass
+    # select all gates and wires and move all in the mocing position and amount from mouse
+    # think about zoom in and out
+
+
+def get_gate_by_position(mouse_x, mouse_y, gates):
+    for gate in gates:
+        if gate.x < mouse_x < gate.x + SYMBOL_WIDTH and gate.y < mouse_y < gate.y + SYMBOL_HEIGHT:
+            return get_gate_by_id(gate.id)
 
 
 def get_gate_by_id(gate_id):
@@ -100,8 +119,17 @@ def get_gate_by_id(gate_id):
     return None
 
 
+def right_click_menu(mouse_x, mouse_y, this_gate):
+    pass
+    # gate id, gate type,
+    # show gate connections and signals,
+    # show gate inout output table,
+    # show ecplanation,
+    # delete gate button
+
+
 def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                nand_gate_btn, nor_gate_btn, gates):
+                nand_gate_btn, nor_gate_btn, gates, switch_off_btn, light_off_btn):
     window.fill(BACKGROUND_COLOR)
 
     for gate in gates:
@@ -114,6 +142,9 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     window.blit(NAND_GATE, (nand_gate_btn.x, nand_gate_btn.y))
     window.blit(NOR_GATE, (nor_gate_btn.x, nor_gate_btn.y))
 
+    window.blit(SWITCH_OFF, (switch_off_btn.x, switch_off_btn.y))
+    window.blit(LIGHT_OFF, (light_off_btn.x, light_off_btn.y))
+
     pygame.display.update()
 
 
@@ -123,6 +154,10 @@ def main():
 
     menu_bar = pygame.Surface((WIDTH, 10+SYMBOL_HEIGHT+10))
     menu_bar.fill((128, 128, 128))
+
+    menu_seperator = pygame.Surface((5, 10+SYMBOL_HEIGHT+10))
+    menu_seperator.fill((85, 85, 85))
+
     and_gate_btn = pygame.Rect(
         0*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
     not_gate_btn = pygame.Rect(
@@ -133,6 +168,11 @@ def main():
         3*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
     nor_gate_btn = pygame.Rect(
         4*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+
+    switch_off_btn = pygame.Rect(
+        6*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+    light_off_btn = pygame.Rect(
+        7*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
 
     clock = pygame.time.Clock()
     # gameloop
@@ -153,10 +193,8 @@ def main():
                     if clicked_gate_id is not None:
                         dragging_gate = get_gate_by_id(clicked_gate_id)
                     elif clicked_gate_id is None:
-                        this_gate = get_existing_gate(mouse_x, mouse_y, gates)
-                        dragging_gate = get_gate_by_id(this_gate)
-                    else:  # drag whole screen
-                        drag_screen(mouse_x, mouse_y, gates)
+                        dragging_gate = get_gate_by_position(
+                            mouse_x, mouse_y, gates)
 
             # drag mouse
             if event.type == pygame.MOUSEMOTION:
@@ -176,8 +214,19 @@ def main():
                 else:
                     gates.remove(dragging_gate)
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 3:  # right click
+                    mouse_x, mouse_y = event.pos
+                    this_gate = get_gate_by_position(mouse_x, mouse_y, gates)
+                    right_click_menu(mouse_x, mouse_y, this_gate)
+
+            # middle mouse
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 3:
+                    drag_screen(mouse_x, mouse_y, gates)
+
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                    nand_gate_btn, nor_gate_btn, gates)
+                    nand_gate_btn, nor_gate_btn, gates, switch_off_btn, light_off_btn)
 
     pygame.quit()
 
