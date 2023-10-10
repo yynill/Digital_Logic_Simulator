@@ -14,3 +14,13 @@ def get_obj_by_id(obj_id):
         if obj.id == obj_id:
             return obj
     return None
+
+
+def drag_screen(event, objects):
+
+    pan_x, pan_y = event
+
+    for obj in objects:
+        obj.x += pan_x
+        obj.y += pan_y
+    # think about zoom in and out

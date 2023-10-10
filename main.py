@@ -12,13 +12,7 @@ def check_cable_click(mouse_x, mouse_y):
         print(cable_mode)
 
 
-def drag_screen(mouse_x, mouse_y, objects):
-    pass
-    # select all objects and wires and move all in the mocing position and amount from mouse
-    # think about zoom in and out
-
-
-def right_click_menu(mouse_x, mouse_y, this_objects):
+def create_right_click_menu(this_obj):
     pass
     # obj id, objects type,
     # show gate connections and signals,
@@ -69,8 +63,16 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
 
 def main():
+    global cable_mode
+
     global dragging_object
     dragging_object = None
+
+    global panning
+    panning = False
+
+    right_click_menu = None
+    right_click_menu_visible = False  # Menu visibility flag
 
     menu_bar = pygame.Surface((WIDTH, 10+SYMBOL_HEIGHT+10))
     menu_bar.fill((128, 128, 128))
@@ -150,12 +152,6 @@ def main():
                 else:
                     objects.remove(dragging_object)
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3:  # right click
-                    mouse_x, mouse_y = event.pos
-                    this_obj = get_obj_by_position(mouse_x, mouse_y, objects)
-                    right_click_menu(mouse_x, mouse_y, this_obj)
-
             # Cable mode on
             if event.type == pygame.MOUSEBUTTONDOWN and cable_mode:
                 global line_start
@@ -185,11 +181,24 @@ def main():
 
                     line_start = None
                     line_end = None
+                elif event.button == 2:
+                    panning = False
+
+            # right click
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 3:  # right click
+                    mouse_x, mouse_y = event.pos
+                    this_obj = get_obj_by_position(mouse_x, mouse_y, objects)
+                    right_click_menu = create_right_click_menu(this_obj)
+                    right_click_menu_visible = True
+                elif event.button == 2:
+                    cable_mode = False
+                    panning = True
 
             # middle mouse
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3:
-                    drag_screen(mouse_x, mouse_y, objects)
+            if event.type == pygame.MOUSEMOTION and panning == True:
+                print(event.rel)
+                drag_screen(event.rel, objects)
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
                     nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)
