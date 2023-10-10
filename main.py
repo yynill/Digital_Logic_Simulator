@@ -59,6 +59,9 @@ CABLE = pygame.transform.scale(
     CABLE_IMG, (SWITCH_WIDTH, SWITCH_HEIGHT))
 
 cable_mode = False
+line_start = None
+line_end = None
+cables = []
 
 
 class DrawableObject:
@@ -93,6 +96,14 @@ class Light(DrawableObject):
         self.light_state = light_state  # True for on, False for off
 
 
+class Cable():
+    def __init__(self, _id, obj_connection_1, obj_connection_2, active):
+        self.id = _id
+        self.obj_connection_1 = obj_connection_1
+        self.obj_connection_2 = obj_connection_2
+        self.active = active  # true or false
+
+
 gate_images = {
     'AND_GATE': AND_GATE,
     'NOT_GATE': NOT_GATE,
@@ -119,7 +130,7 @@ def check_cable_click(mouse_x, mouse_y):
     global cable_mode
     if 9*(SYMBOL_WIDTH+10) + 10 < mouse_x < (9*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
         cable_mode = not cable_mode  # toggle cable mode
-        return True
+        print(cable_mode)
 
 
 def check_menu_switch_click(mouse_x, mouse_y):
@@ -127,7 +138,6 @@ def check_menu_switch_click(mouse_x, mouse_y):
     if 6*(SYMBOL_WIDTH+10) + 10 < mouse_x < (6*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
         new_switch_type = 'SWITCH_OFF'
 
-    print(new_switch_type)
     if new_switch_type is not None:
         new_switch = Switch(len(objects), new_switch_type,
                             switch_images[new_switch_type], mouse_x, mouse_y)
@@ -135,6 +145,8 @@ def check_menu_switch_click(mouse_x, mouse_y):
         clicked_object = new_switch.id
         objects.append(new_switch)
         new_switch_type = None
+        global cable_mode
+        cable_mode = False
         return clicked_object
 
 
@@ -143,7 +155,6 @@ def check_menu_light_click(mouse_x, mouse_y):
     if 7*(SYMBOL_WIDTH+10) + 10 < mouse_x < (7*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
         new_light_type = 'LIGHT_OFF'
 
-    print(new_light_type)
     if new_light_type is not None:
         new_light = Light(len(objects), new_light_type,
                           light_images[new_light_type], mouse_x, mouse_y)
@@ -151,6 +162,8 @@ def check_menu_light_click(mouse_x, mouse_y):
         clicked_object = new_light.id
         objects.append(new_light)
         new_light_type = None
+        global cable_mode
+        cable_mode = False
         return clicked_object
 
 
@@ -173,7 +186,6 @@ def check_menu_gate_click(mouse_x, mouse_y):
         if 4*(SYMBOL_WIDTH+10) + 10 < mouse_x < (4*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
             new_gate_type = 'NOR_GATE'
 
-        print(new_gate_type)
         if new_gate_type is not None:
             new_gate = Gate(len(objects), new_gate_type,
                             gate_images[new_gate_type], mouse_x, mouse_y)
@@ -181,6 +193,8 @@ def check_menu_gate_click(mouse_x, mouse_y):
             clicked_object = new_gate.id
             objects.append(new_gate)
             new_gate_type = None
+            global cable_mode
+            cable_mode = False
             return clicked_object
         else:
             return None
@@ -216,7 +230,7 @@ def right_click_menu(mouse_x, mouse_y, this_objects):
 
 
 def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg):
+                nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end):
     window.fill(BACKGROUND_COLOR)
 
     for obj in objects:
@@ -235,6 +249,21 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     if cable_mode == True:
         window.blit(cable_bg, (cable_btn.x - 5, 5))
 
+    for cable in cables:
+        start_obj = get_obj_by_id(cable.obj_connection_1)
+        end_obj = get_obj_by_id(cable.obj_connection_2)
+
+        if start_obj and end_obj:
+            start = (start_obj.x + SYMBOL_WIDTH // 2,
+                     start_obj.y + SYMBOL_HEIGHT // 2)
+            end = (end_obj.x + SYMBOL_WIDTH // 2,
+                   end_obj.y + SYMBOL_HEIGHT // 2)
+
+            pygame.draw.line(window, WIRE_COLOR, start, end, 3)
+
+    if line_start is not None and line_end is not None:
+        pygame.draw.line(window, WIRE_COLOR, line_start, line_end, 3)
+
     window.blit(CABLE, (cable_btn.x, cable_btn.y))
 
     pygame.display.update()
@@ -251,23 +280,23 @@ def main():
     cable_bg.fill((85, 85, 85))
 
     and_gate_btn = pygame.Rect(
-        0*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        0*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
     not_gate_btn = pygame.Rect(
-        1*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        1*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
     or_gate_btn = pygame.Rect(
-        2*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        2*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
     nand_gate_btn = pygame.Rect(
-        3*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        3*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
     nor_gate_btn = pygame.Rect(
-        4*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        4*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
 
     switch_off_btn = pygame.Rect(
-        6*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        6*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
     light_off_btn = pygame.Rect(
-        7*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        7*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
 
     cable_btn = pygame.Rect(
-        9*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+        9*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
 
     clock = pygame.time.Clock()
     # gameloop
@@ -298,8 +327,7 @@ def main():
                                 mouse_x, mouse_y)
 
                             if clicked_object_id is None:
-                                cable_mode = check_cable_click(
-                                    mouse_x, mouse_y)
+                                check_cable_click(mouse_x, mouse_y)
 
                     if clicked_object_id is not None:
                         dragging_object = get_obj_by_id(clicked_object_id)
@@ -309,13 +337,11 @@ def main():
                             mouse_x, mouse_y, objects)
 
             # drag mouse
-            if event.type == pygame.MOUSEMOTION:
+            if event.type == pygame.MOUSEMOTION and cable_mode == False:
                 if dragging_object != None:
                     mouse_x, mouse_y = event.pos
                     dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
                     dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
-                else:
-                    pass
 
             # release obj
             if event.type == pygame.MOUSEBUTTONUP and dragging_object is not None:
@@ -331,13 +357,43 @@ def main():
                     this_obj = get_obj_by_position(mouse_x, mouse_y, objects)
                     right_click_menu(mouse_x, mouse_y, this_obj)
 
+            # Cable mode on
+            if event.type == pygame.MOUSEBUTTONDOWN and cable_mode:
+                global line_start
+                x, y = event.pos
+                if line_start is None and y > SYMBOL_HEIGHT:
+                    line_start = event.pos
+
+            if event.type == pygame.MOUSEMOTION and cable_mode:
+                global line_end
+                if line_start is not None:
+                    line_end = event.pos
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1 and cable_mode and line_start is not None:
+                    c1, c2 = line_start
+                    c3, c4 = line_end
+
+                    obj_connection_1 = get_obj_by_position(c1, c2, objects).id
+                    obj_connection_2 = get_obj_by_position(c3, c4, objects).id
+                    print(
+                        f'Connections: {obj_connection_1}/{obj_connection_2}')
+
+                    new_cable = Cable(
+                        len(cables), obj_connection_1, obj_connection_2, True)
+                    cables.append(new_cable)
+                    print('cable created')
+
+                    line_start = None
+                    line_end = None
+
             # middle mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
                     drag_screen(mouse_x, mouse_y, objects)
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                    nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg)
+                    nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)
 
     pygame.quit()
 
