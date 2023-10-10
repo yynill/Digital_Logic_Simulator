@@ -54,6 +54,12 @@ LIGHT_ON_IMG = pygame.image.load('./ASSETS/LIGHT_ON.png')
 LIGHT_ON = pygame.transform.scale(
     LIGHT_ON_IMG, (LIGHT_WIDTH, LIGHT_HEIGHT))
 
+CABLE_IMG = pygame.image.load('./ASSETS/CABLE.png')
+CABLE = pygame.transform.scale(
+    CABLE_IMG, (SWITCH_WIDTH, SWITCH_HEIGHT))
+
+cable_mode = False
+
 
 class DrawableObject:
     def __init__(self, _id, image, x, y):
@@ -109,9 +115,16 @@ clicked_object = None
 objects = []
 
 
+def check_cable_click(mouse_x, mouse_y):
+    global cable_mode
+    if 9*(SYMBOL_WIDTH+10) + 10 < mouse_x < (9*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
+        cable_mode = not cable_mode  # toggle cable mode
+        return True
+
+
 def check_menu_switch_click(mouse_x, mouse_y):
     new_switch_type = None
-    if 6*(SYMBOL_WIDTH+10) + 10 < mouse_x < (6*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
+    if 6*(SYMBOL_WIDTH+10) + 10 < mouse_x < (6*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
         new_switch_type = 'SWITCH_OFF'
 
     print(new_switch_type)
@@ -127,7 +140,7 @@ def check_menu_switch_click(mouse_x, mouse_y):
 
 def check_menu_light_click(mouse_x, mouse_y):
     new_light_type = None
-    if 7*(SYMBOL_WIDTH+10) + 10 < mouse_x < (7*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
+    if 7*(SYMBOL_WIDTH+10) + 10 < mouse_x < (7*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
         new_light_type = 'LIGHT_OFF'
 
     print(new_light_type)
@@ -203,7 +216,7 @@ def right_click_menu(mouse_x, mouse_y, this_objects):
 
 
 def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn):
+                nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg):
     window.fill(BACKGROUND_COLOR)
 
     for obj in objects:
@@ -219,6 +232,11 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     window.blit(SWITCH_OFF, (switch_off_btn.x, switch_off_btn.y))
     window.blit(LIGHT_OFF, (light_off_btn.x, light_off_btn.y))
 
+    if cable_mode == True:
+        window.blit(cable_bg, (cable_btn.x - 5, 5))
+
+    window.blit(CABLE, (cable_btn.x, cable_btn.y))
+
     pygame.display.update()
 
 
@@ -229,8 +247,8 @@ def main():
     menu_bar = pygame.Surface((WIDTH, 10+SYMBOL_HEIGHT+10))
     menu_bar.fill((128, 128, 128))
 
-    menu_seperator = pygame.Surface((5, 10+SYMBOL_HEIGHT+10))
-    menu_seperator.fill((85, 85, 85))
+    cable_bg = pygame.Surface((SYMBOL_WIDTH+10, 10+SYMBOL_HEIGHT))
+    cable_bg.fill((85, 85, 85))
 
     and_gate_btn = pygame.Rect(
         0*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
@@ -248,6 +266,9 @@ def main():
     light_off_btn = pygame.Rect(
         7*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
 
+    cable_btn = pygame.Rect(
+        9*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT)
+
     clock = pygame.time.Clock()
     # gameloop
     run = True
@@ -260,6 +281,7 @@ def main():
 
             # left click
             clicked_object_id = None
+
             if event.type == pygame.MOUSEBUTTONDOWN:
 
                 if event.button == 1:  # left mouse (button 1)
@@ -274,6 +296,10 @@ def main():
                         if clicked_object_id is None:
                             clicked_object_id = check_menu_light_click(
                                 mouse_x, mouse_y)
+
+                            if clicked_object_id is None:
+                                cable_mode = check_cable_click(
+                                    mouse_x, mouse_y)
 
                     if clicked_object_id is not None:
                         dragging_object = get_obj_by_id(clicked_object_id)
@@ -292,8 +318,8 @@ def main():
                     pass
 
             # release obj
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1 and dragging_object is not None:
+            if event.type == pygame.MOUSEBUTTONUP and dragging_object is not None:
+                if event.button == 1:
                     if dragging_object.y > SYMBOL_HEIGHT:
                         dragging_object = None
                 else:
@@ -311,7 +337,7 @@ def main():
                     drag_screen(mouse_x, mouse_y, objects)
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                    nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn)
+                    nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg)
 
     pygame.quit()
 
