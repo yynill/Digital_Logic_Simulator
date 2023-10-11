@@ -9,6 +9,7 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Digital Logic Simulator!')
 
 FPS = 60
+DOUBLE_CLICK_TIME_THRESHOLD = 0.3
 
 SYMBOL_WIDTH = 36
 SYMBOL_HEIGHT = 55

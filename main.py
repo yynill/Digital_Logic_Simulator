@@ -71,6 +71,8 @@ def main():
     global panning
     panning = False
 
+    last_click_time = 0
+
     right_click_menu = None
     right_click_menu_visible = False  # Menu visibility flag
 
@@ -136,6 +138,19 @@ def main():
                     elif clicked_object_id is None:
                         dragging_object = get_obj_by_position(
                             mouse_x, mouse_y, objects)
+
+                    current_time = pygame.time.get_ticks() / 1000  # Convert to seconds
+
+                    # double click
+                    if current_time - last_click_time <= DOUBLE_CLICK_TIME_THRESHOLD:
+                        mouse_x, mouse_y = event.pos
+                        double_clicked_object = get_obj_by_position(
+                            mouse_x, mouse_y, objects)
+                        if hasattr(double_clicked_object, "switch_state"):
+                            toggleSwitch(double_clicked_object)
+                        else:
+                            pass
+                    last_click_time = current_time
 
             # drag mouse
             if event.type == pygame.MOUSEMOTION and cable_mode == False:

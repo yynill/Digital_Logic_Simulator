@@ -1,6 +1,7 @@
 import pygame
 from constants import *
 from objects import *
+from functions import *
 
 
 def get_obj_by_position(mouse_x, mouse_y, objects):
@@ -24,3 +25,7 @@ def drag_screen(event, objects):
         obj.x += pan_x
         obj.y += pan_y
     # think about zoom in and out
+
+
+def toggleSwitch(double_clicked_object):
+    double_clicked_object.update()

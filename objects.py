@@ -1,3 +1,6 @@
+from constants import *
+
+
 class DrawableObject:
     def __init__(self, _id, image, x, y):
         self.id = _id
@@ -22,6 +25,13 @@ class Switch(DrawableObject):
     def __init__(self, _id, switch_state, image, x, y):
         super().__init__(_id, image, x, y)
         self.switch_state = switch_state  # True for on, False for off
+
+    def update(self):
+        self.switch_state = not self.switch_state
+        if self.switch_state:
+            self.image = switch_images['SWITCH_ON']
+        else:
+            self.image = switch_images['SWITCH_OFF']
 
 
 class Light(DrawableObject):
