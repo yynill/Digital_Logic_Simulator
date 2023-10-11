@@ -166,21 +166,29 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1 and cable_mode and line_start is not None:
-                    c1, c2 = line_start
-                    c3, c4 = line_end
+                    try:
+                        c1, c2 = line_start
+                        c3, c4 = line_end
 
-                    obj_connection_1 = get_obj_by_position(c1, c2, objects).id
-                    obj_connection_2 = get_obj_by_position(c3, c4, objects).id
-                    print(
-                        f'Connections: {obj_connection_1}/{obj_connection_2}')
+                        obj_connection_1 = get_obj_by_position(
+                            c1, c2, objects).id
+                        obj_connection_2 = get_obj_by_position(
+                            c3, c4, objects).id
+                        print(
+                            f'Connections: {obj_connection_1}/{obj_connection_2}')
 
-                    new_cable = Cable(
-                        len(cables), obj_connection_1, obj_connection_2, True)
-                    cables.append(new_cable)
-                    print('cable created')
+                        new_cable = Cable(
+                            len(cables), obj_connection_1, obj_connection_2, True)
+                        cables.append(new_cable)
+                        print('cable created')
 
-                    line_start = None
-                    line_end = None
+                        line_start = None
+                        line_end = None
+
+                    except Exception as e:
+                        line_start = None
+                        line_end = None
+
                 elif event.button == 2:
                     panning = False
 
