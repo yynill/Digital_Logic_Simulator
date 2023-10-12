@@ -67,6 +67,7 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
 
 def main():
+    print(pygame.display.list_modes())
     global cable_mode
 
     global dragging_object
@@ -150,6 +151,9 @@ def main():
                         mouse_x, mouse_y = event.pos
                         double_clicked_object = get_obj_by_position(
                             mouse_x, mouse_y, objects)
+
+                        double_clicked_object.print_cables()
+
                         if hasattr(double_clicked_object, "switch"):
                             toggleSwitch(double_clicked_object)
 
@@ -190,28 +194,33 @@ def main():
                         c1, c2 = line_start
                         c3, c4 = line_end
 
-                        obj_connection_1 = get_obj_by_position(
-                            c1, c2, objects).id
-                        obj_connection_2 = get_obj_by_position(
-                            c3, c4, objects).id
+                        obj_connection_1 = get_obj_by_position(c1, c2, objects)
+                        obj_connection_2 = get_obj_by_position(c3, c4, objects)
 
-                        print(
-                            f'Connections: {obj_connection_1}/{obj_connection_2}')
+                        if (isinstance(obj_connection_1, Switch) and isinstance(obj_connection_2, Switch)) or (isinstance(obj_connection_1, Light) and isinstance(obj_connection_2, Light)):
+                            line_start = None
+                            line_end = None
+                        # problematic, because than cant attach ouput cable
+                        # elif (isinstance(obj_connection_1, Gate) and len(obj_connection_1.input_cables) > 2) or (isinstance(obj_connection_2, Gate) and len(obj_connection_2.input_cables) > 2):
+                        #     line_start = None
+                        #     line_end = None
+                        else:
+                            print(
+                                f'Connections: {obj_connection_1.id}/{obj_connection_2.id}')
 
-                        new_cable = Cable(
-                            len(cables), obj_connection_1, obj_connection_2, False)
-                        cables.append(new_cable)
+                            new_cable = Cable(
+                                len(cables), obj_connection_1.id, obj_connection_2.id, False)
+                            cables.append(new_cable)
 
-                        connect_cable(obj_connection_1,
-                                      obj_connection_2, False)
+                            connect_cable(obj_connection_1.id,
+                                          obj_connection_2.id, False)
 
-                        print('cable created')
+                            print('cable created')
 
-                        line_start = None
-                        line_end = None
+                            line_start = None
+                            line_end = None
 
                     except Exception as e:
-                        print(f'Error: {e}')
                         line_start = None
                         line_end = None
 

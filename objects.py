@@ -1,5 +1,6 @@
 from constants import *
 from functions import *
+from gate_logic import *
 
 
 class DrawableObject:
@@ -10,22 +11,24 @@ class DrawableObject:
         self.y = y
         self.input_cables = {}  # empty = no cable / False = off cable / True on cable
 
+    def print_cables(self):
+        if isinstance(self, Light) or isinstance(self, Gate):
+            print(f'Input cables of {self.id} - {self.input_cables}')
+
 
 def connect_cable(object_1, object_2, cable_state):
-    object_1.input_cables[object_1] = cable_state
-    object_2.input_cables[object_2] = cable_state
+    object_1.input_cables[object_2.id] = cable_state
+    object_2.input_cables[object_1.id] = cable_state
 
 
 class Gate(DrawableObject):
     def __init__(self, _id, gate_type, image, x, y):
         super().__init__(_id, image, x, y)
         self.gate_type = gate_type
-        # self.inputs = []  #  input connections
-        # self.outputs = []  #  output connections
+        self.output = False
 
     def update(self):
-        #  logic to compute outputs based on inputs
-        pass
+        output = gate_logic_algo(input1, input2, self.gate_type)
 
 
 class Switch(DrawableObject):
@@ -50,11 +53,11 @@ class Light(DrawableObject):
 
     def update(self):
         if self.input_cables:
-            cable_states = self.input_cables.values()
-            if any(cable_states):
+            cable_states = list(self.input_cables.values())
+
+            if True in cable_states:
                 self.state = True
                 self.image = light_images['LIGHT_ON']
-
             else:
                 self.state = False
                 self.image = light_images['LIGHT_OFF']
