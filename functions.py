@@ -29,3 +29,9 @@ def drag_screen(event, objects):
 
 def toggleSwitch(double_clicked_object):
     double_clicked_object.update()
+    for cable in cables:
+        cable.update()
+
+    for light in objects:
+        if hasattr(light, "light"):
+            light.update()

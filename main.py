@@ -28,6 +28,7 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
     for obj in objects:
         window.blit(obj.image, (obj.x, obj.y))
+
     window.blit(menu_bar, (0, 0))
 
     window.blit(AND_GATE, (and_gate_btn.x, and_gate_btn.y))
@@ -52,7 +53,10 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
             end = (end_obj.x + SYMBOL_WIDTH // 2,
                    end_obj.y + SYMBOL_HEIGHT // 2)
 
-            pygame.draw.line(window, WIRE_COLOR, start, end, 3)
+            if cable.state == True:
+                pygame.draw.line(window, WIRE_COLOR_ACTIVE, start, end, 3)
+            elif cable.state == False:
+                pygame.draw.line(window, WIRE_COLOR, start, end, 3)
 
     if line_start is not None and line_end is not None:
         pygame.draw.line(window, WIRE_COLOR, line_start, line_end, 3)
@@ -146,8 +150,9 @@ def main():
                         mouse_x, mouse_y = event.pos
                         double_clicked_object = get_obj_by_position(
                             mouse_x, mouse_y, objects)
-                        if hasattr(double_clicked_object, "switch_state"):
+                        if hasattr(double_clicked_object, "switch"):
                             toggleSwitch(double_clicked_object)
+
                         else:
                             pass
                     last_click_time = current_time
@@ -189,18 +194,24 @@ def main():
                             c1, c2, objects).id
                         obj_connection_2 = get_obj_by_position(
                             c3, c4, objects).id
+
                         print(
                             f'Connections: {obj_connection_1}/{obj_connection_2}')
 
                         new_cable = Cable(
-                            len(cables), obj_connection_1, obj_connection_2, True)
+                            len(cables), obj_connection_1, obj_connection_2, False)
                         cables.append(new_cable)
+
+                        connect_cable(obj_connection_1,
+                                      obj_connection_2, False)
+
                         print('cable created')
 
                         line_start = None
                         line_end = None
 
                     except Exception as e:
+                        print(f'Error: {e}')
                         line_start = None
                         line_end = None
 

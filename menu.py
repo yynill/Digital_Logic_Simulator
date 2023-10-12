@@ -9,14 +9,15 @@ def check_menu_switch_click(mouse_x, mouse_y):
         new_switch_type = 'SWITCH_OFF'
 
     if new_switch_type is not None:
-        new_switch = Switch(len(objects), new_switch_type,
+        new_switch = Switch(len(objects), False,
                             switch_images[new_switch_type], mouse_x, mouse_y)
+        global cable_mode
+        cable_mode = False
 
         clicked_object = new_switch.id
         objects.append(new_switch)
         new_switch_type = None
-        global cable_mode
-        cable_mode = False
+
         return clicked_object
 
 
@@ -26,14 +27,15 @@ def check_menu_light_click(mouse_x, mouse_y):
         new_light_type = 'LIGHT_OFF'
 
     if new_light_type is not None:
-        new_light = Light(len(objects), new_light_type,
+        new_light = Light(len(objects), False,
                           light_images[new_light_type], mouse_x, mouse_y)
+        global cable_mode
+        cable_mode = False
 
         clicked_object = new_light.id
         objects.append(new_light)
         new_light_type = None
-        global cable_mode
-        cable_mode = False
+
         return clicked_object
 
 
@@ -63,8 +65,10 @@ def check_menu_gate_click(mouse_x, mouse_y):
             clicked_object = new_gate.id
             objects.append(new_gate)
             new_gate_type = None
+
             global cable_mode
             cable_mode = False
+
             return clicked_object
         else:
             return None
