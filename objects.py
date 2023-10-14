@@ -28,19 +28,32 @@ class Gate(DrawableObject):
         self.num_inputs = num_inputs
         self.output = False
 
-        self.input_region = pygame.Rect(
-            x, y + SYMBOL_HEIGHT, SYMBOL_WIDTH, INPUT_REGION_HEIGHT)
+        # Input and output regions
+
+        if self.gate_type == 'NOT_GATE':
+            # Common part for all gates
+            self.input_region = pygame.Rect(
+                x, y + SYMBOL_HEIGHT, SYMBOL_WIDTH, INPUT_REGION_HEIGHT)
+
+        if self.gate_type != 'NOT_GATE':
+            # Specific part for NOT gate
+            self.input_region1 = pygame.Rect(
+                x, y + SYMBOL_HEIGHT, INPUT_REGION_WIDTH, INPUT_REGION_HEIGHT)
+            self.input_region2 = pygame.Rect(
+                x, y + SYMBOL_HEIGHT, INPUT_REGION_WIDTH, INPUT_REGION_HEIGHT)
 
         self.output_region = pygame.Rect(
             x, y - OUTPUT_REGION_HEIGHT, SYMBOL_WIDTH, OUTPUT_REGION_HEIGHT)
-
-        self.input_cables = []
-        self.output_cables = []
 
     # calc output
     def update(self):
         input_values = [obj.input_cables[obj.id] for obj in self.input_cables]
         self.output = gate_logic_algo(input_values, self.gate_type)
+
+        # Update output cable state
+        for obj_id, state in self.output_cables.items():
+            cable = get_cable_by_connection(self.id, obj_id)
+            cable.state = self.output
 
 
 class Switch(DrawableObject):

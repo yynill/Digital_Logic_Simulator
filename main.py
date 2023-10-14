@@ -28,9 +28,19 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
     for obj in objects:
         if isinstance(obj, Gate):
-            pygame.draw.rect(window, (255, 0, 0), obj.input_region, 2)
-            pygame.draw.rect(window, (0, 0, 255), obj.output_region, 2)
-            window.blit(obj.image, (obj.x, obj.y))
+            if obj.gate_type != 'NOT_GATE':
+                window.blit(obj.image, (obj.x, obj.y))
+                # gelb (255,255,0) - input
+                # rot (255, 0, 0) - output
+                pygame.draw.rect(window, (255, 255, 0), obj.input_region1, 2)
+                pygame.draw.rect(window, (255, 255, 0), obj.input_region2, 2)
+
+                pygame.draw.rect(window, (255, 0, 0), obj.output_region, 2)
+
+            elif obj.gate_type == 'NOT_GATE':
+                window.blit(obj.image, (obj.x, obj.y))
+                pygame.draw.rect(window, (255, 255, 0), obj.input_region, 2)
+                pygame.draw.rect(window, (255, 0, 0), obj.output_region, 2)
         else:
             window.blit(obj.image, (obj.x, obj.y))
 
@@ -171,14 +181,28 @@ def main():
                     mouse_x, mouse_y = event.pos
 
                     if isinstance(dragging_object, Gate):
-                        dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
-                        dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
+                        if dragging_object.gate_type != 'NOT_GATE':
+                            dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
+                            dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
 
-                        dragging_object.input_region.x = mouse_x - SYMBOL_WIDTH // 2
-                        dragging_object.input_region.y = mouse_y - SYMBOL_HEIGHT // 2
+                            dragging_object.output_region.x = mouse_x - SYMBOL_WIDTH // 2
+                            dragging_object.output_region.y = mouse_y - SYMBOL_HEIGHT // 2
 
-                        dragging_object.output_region.x = mouse_x - SYMBOL_WIDTH // 2
-                        dragging_object.output_region.y = mouse_y
+                            dragging_object.input_region1.x = mouse_x - INPUT_REGION_WIDTH
+                            dragging_object.input_region1.y = mouse_y
+
+                            dragging_object.input_region2.x = mouse_x
+                            dragging_object.input_region2.y = mouse_y
+
+                        elif dragging_object.gate_type == 'NOT_GATE':
+                            dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
+                            dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
+
+                            dragging_object.output_region.x = mouse_x - SYMBOL_WIDTH // 2
+                            dragging_object.output_region.y = mouse_y - SYMBOL_HEIGHT // 2
+
+                            dragging_object.input_region.x = mouse_x - SYMBOL_WIDTH // 2
+                            dragging_object.input_region.y = mouse_y
                     else:
                         dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
                         dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
@@ -257,7 +281,7 @@ def main():
             # middle mouse
             if event.type == pygame.MOUSEMOTION and panning == True:
                 print(event.rel)
-                drag_screen(event.rel, objects)
+                drag_screen(event.rel, objects, Gate)
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
                     nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)
