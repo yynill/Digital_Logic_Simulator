@@ -12,37 +12,12 @@ def check_cable_click(mouse_x, mouse_y):
         print(cable_mode)
 
 
-def create_right_click_menu(this_obj):
-    pass
-    # obj id, objects type,
-    # show gate connections and signals,
-    # show gate inout output table,
-    # show ecplanation,
-    # delete gate button
-    # same with lamp and switches
-
-
 def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
                 nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end):
     window.fill(BACKGROUND_COLOR)
 
     for obj in objects:
-        if isinstance(obj, Gate):
-            if obj.gate_type != 'NOT_GATE':
-                window.blit(obj.image, (obj.x, obj.y))
-                # gelb (255,255,0) - input
-                # rot (255, 0, 0) - output
-                pygame.draw.rect(window, (255, 255, 0), obj.input_region1, 2)
-                pygame.draw.rect(window, (255, 255, 0), obj.input_region2, 2)
-
-                pygame.draw.rect(window, (255, 0, 0), obj.output_region, 2)
-
-            elif obj.gate_type == 'NOT_GATE':
-                window.blit(obj.image, (obj.x, obj.y))
-                pygame.draw.rect(window, (255, 255, 0), obj.input_region, 2)
-                pygame.draw.rect(window, (255, 0, 0), obj.output_region, 2)
-        else:
-            window.blit(obj.image, (obj.x, obj.y))
+        window.blit(obj.image, (obj.x, obj.y))
 
     window.blit(menu_bar, (0, 0))
 
@@ -180,32 +155,8 @@ def main():
                 if dragging_object != None:
                     mouse_x, mouse_y = event.pos
 
-                    if isinstance(dragging_object, Gate):
-                        if dragging_object.gate_type != 'NOT_GATE':
-                            dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
-                            dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
-
-                            dragging_object.output_region.x = mouse_x - SYMBOL_WIDTH // 2
-                            dragging_object.output_region.y = mouse_y - SYMBOL_HEIGHT // 2
-
-                            dragging_object.input_region1.x = mouse_x - INPUT_REGION_WIDTH
-                            dragging_object.input_region1.y = mouse_y
-
-                            dragging_object.input_region2.x = mouse_x
-                            dragging_object.input_region2.y = mouse_y
-
-                        elif dragging_object.gate_type == 'NOT_GATE':
-                            dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
-                            dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
-
-                            dragging_object.output_region.x = mouse_x - SYMBOL_WIDTH // 2
-                            dragging_object.output_region.y = mouse_y - SYMBOL_HEIGHT // 2
-
-                            dragging_object.input_region.x = mouse_x - SYMBOL_WIDTH // 2
-                            dragging_object.input_region.y = mouse_y
-                    else:
-                        dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
-                        dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
+                    dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
+                    dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
 
             # release obj
             if event.type == pygame.MOUSEBUTTONUP and dragging_object is not None:
@@ -240,10 +191,6 @@ def main():
                             line_start = None
                             line_end = None
 
-                        # elif isinstance(obj_connection_1, Gate) or isinstance(obj_connection_2, Gate):
-                            # check if num inputs logic for gates
-                            pass
-
                         else:
                             print(
                                 f'Connections: {obj_connection_1.id}/{obj_connection_2.id}')
@@ -255,14 +202,13 @@ def main():
                             connect_cable(obj_connection_1.id,
                                           obj_connection_2.id, False)
 
-                            print('cable created')
-
                             line_start = None
                             line_end = None
 
                     except Exception as e:
                         line_start = None
                         line_end = None
+                        print(e)
 
                 elif event.button == 2:
                     panning = False
@@ -280,7 +226,6 @@ def main():
 
             # middle mouse
             if event.type == pygame.MOUSEMOTION and panning == True:
-                print(event.rel)
                 drag_screen(event.rel, objects, Gate)
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,

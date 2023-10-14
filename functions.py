@@ -22,33 +22,8 @@ def drag_screen(event, objects, Gate):
     pan_x, pan_y = event
 
     for obj in objects:
-        if isinstance(obj, Gate):
-            if obj.gate_type != 'NOT_GATE':
-                obj.x += pan_x
-                obj.y += pan_y
-
-                obj.output_region.x += pan_x
-                obj.output_region.y += pan_y
-
-                obj.input_region1.x += pan_x
-                obj.input_region1.y += pan_y
-
-                obj.input_region2.x += pan_x
-                obj.input_region2.y += pan_y
-
-            elif obj.gate_type == 'NOT_GATE':
-
-                obj.x += pan_x
-                obj.y += pan_y
-
-                obj.output_region.x += pan_x
-                obj.output_region.y += pan_y
-
-                obj.input_region.x += pan_x
-                obj.input_region.y += pan_y
-        else:
-            obj.x += pan_x
-            obj.y += pan_y
+        obj.x += pan_x
+        obj.y += pan_y
 
     # think about zoom in and out
 
@@ -70,3 +45,13 @@ def get_cable_by_connection(obj1_id, obj2_id):
         elif cable.obj_connection_1 == obj2_id and cable.obj_connection_2 == obj1_id:
             return cable
     return None
+
+
+def create_right_click_menu(this_obj):
+    pass
+    # obj id, objects type,
+    # show gate connections and signals,
+    # show gate inout output table,
+    # show ecplanation,
+    # delete gate button
+    # same with lamp and switches
