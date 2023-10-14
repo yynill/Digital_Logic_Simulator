@@ -27,7 +27,12 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     window.fill(BACKGROUND_COLOR)
 
     for obj in objects:
-        window.blit(obj.image, (obj.x, obj.y))
+        if isinstance(obj, Gate):
+            pygame.draw.rect(window, (255, 0, 0), obj.input_region, 2)
+            pygame.draw.rect(window, (0, 0, 255), obj.output_region, 2)
+            window.blit(obj.image, (obj.x, obj.y))
+        else:
+            window.blit(obj.image, (obj.x, obj.y))
 
     window.blit(menu_bar, (0, 0))
 
@@ -67,7 +72,6 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
 
 def main():
-    print(pygame.display.list_modes())
     global cable_mode
 
     global dragging_object
@@ -165,8 +169,19 @@ def main():
             if event.type == pygame.MOUSEMOTION and cable_mode == False:
                 if dragging_object != None:
                     mouse_x, mouse_y = event.pos
-                    dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
-                    dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
+
+                    if isinstance(dragging_object, Gate):
+                        dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
+                        dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
+
+                        dragging_object.input_region.x = mouse_x - SYMBOL_WIDTH // 2
+                        dragging_object.input_region.y = mouse_y - SYMBOL_HEIGHT // 2
+
+                        dragging_object.output_region.x = mouse_x - SYMBOL_WIDTH // 2
+                        dragging_object.output_region.y = mouse_y
+                    else:
+                        dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
+                        dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
 
             # release obj
             if event.type == pygame.MOUSEBUTTONUP and dragging_object is not None:
@@ -200,10 +215,11 @@ def main():
                         if (isinstance(obj_connection_1, Switch) and isinstance(obj_connection_2, Switch)) or (isinstance(obj_connection_1, Light) and isinstance(obj_connection_2, Light)):
                             line_start = None
                             line_end = None
-                        # problematic, because than cant attach ouput cable
-                        # elif (isinstance(obj_connection_1, Gate) and len(obj_connection_1.input_cables) > 2) or (isinstance(obj_connection_2, Gate) and len(obj_connection_2.input_cables) > 2):
-                        #     line_start = None
-                        #     line_end = None
+
+                        # elif isinstance(obj_connection_1, Gate) or isinstance(obj_connection_2, Gate):
+                            # check if num inputs logic for gates
+                            pass
+
                         else:
                             print(
                                 f'Connections: {obj_connection_1.id}/{obj_connection_2.id}')

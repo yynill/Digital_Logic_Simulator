@@ -59,8 +59,13 @@ def check_menu_gate_click(mouse_x, mouse_y):
             new_gate_type = 'NOR_GATE'
 
         if new_gate_type is not None:
+
+            num_inputs = 2
+            if new_gate_type == 'NOT_GATE':
+                num_inputs = 1
+
             new_gate = Gate(len(objects), new_gate_type,
-                            gate_images[new_gate_type], mouse_x, mouse_y)
+                            gate_images[new_gate_type], mouse_x, mouse_y, num_inputs)
 
             clicked_object = new_gate.id
             objects.append(new_gate)

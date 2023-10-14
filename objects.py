@@ -22,13 +22,25 @@ def connect_cable(object_1, object_2, cable_state):
 
 
 class Gate(DrawableObject):
-    def __init__(self, _id, gate_type, image, x, y):
+    def __init__(self, _id, gate_type, image, x, y, num_inputs):
         super().__init__(_id, image, x, y)
         self.gate_type = gate_type
+        self.num_inputs = num_inputs
         self.output = False
 
+        self.input_region = pygame.Rect(
+            x, y + SYMBOL_HEIGHT, SYMBOL_WIDTH, INPUT_REGION_HEIGHT)
+
+        self.output_region = pygame.Rect(
+            x, y - OUTPUT_REGION_HEIGHT, SYMBOL_WIDTH, OUTPUT_REGION_HEIGHT)
+
+        self.input_cables = []
+        self.output_cables = []
+
+    # calc output
     def update(self):
-        output = gate_logic_algo(input1, input2, self.gate_type)
+        input_values = [obj.input_cables[obj.id] for obj in self.input_cables]
+        self.output = gate_logic_algo(input_values, self.gate_type)
 
 
 class Switch(DrawableObject):
