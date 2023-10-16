@@ -71,6 +71,18 @@ gate_images = {
     'NOR_GATE': NOR_GATE
 }
 
+pin_points = {
+    'AND_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
+    'OR_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
+    'NAND_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
+    'NOR_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
+    'NOT_GATE': [(18, 0, 'output'), (18, 55, 'input')],
+
+    'SWITCH': [(SWITCH_WIDTH/2, 0, 'output')],
+
+    'LIGHT': [(LIGHT_WIDTH/2, LIGHT_HEIGHT, 'input')],
+}
+
 switch_images = {
     'SWITCH_ON': SWITCH_ON,
     'SWITCH_OFF': SWITCH_OFF,

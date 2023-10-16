@@ -38,15 +38,6 @@ def toggleSwitch(double_clicked_object):
             light.update()
 
 
-def get_cable_by_connection(obj1_id, obj2_id):
-    for cable in cables:
-        if cable.obj_connection_1 == obj1_id and cable.obj_connection_2 == obj2_id:
-            return cable
-        elif cable.obj_connection_1 == obj2_id and cable.obj_connection_2 == obj1_id:
-            return cable
-    return None
-
-
 def create_right_click_menu(this_obj):
     pass
     # obj id, objects type,
@@ -55,3 +46,85 @@ def create_right_click_menu(this_obj):
     # show ecplanation,
     # delete gate button
     # same with lamp and switches
+
+
+def is_near_pin(mouse_x, mouse_y, pin_x, pin_y):
+    distance = ((mouse_x - pin_x) ** 2 + (mouse_y - pin_y) ** 2) ** 0.5
+    return distance <= 8
+
+
+def check_red_marker_click(mouse_x, mouse_y, Gate, Switch, Light):
+    for obj_type, pin_attributes in pin_points.items():
+        for obj in objects:
+            if isinstance(obj, Gate) and obj.get_gate_type() == obj_type:
+                for pin_x, pin_y, pin_type in pin_attributes:
+                    pin_x_abs = obj.x + pin_x
+                    pin_y_abs = obj.y + pin_y
+                    if is_near_pin(mouse_x, mouse_y, pin_x_abs, pin_y_abs):
+                        return {
+                            "Position": (pin_x_abs, pin_y_abs),
+                            "Object ID": obj.id,
+                            "Object Type": obj_type,
+                            "Pin Type": pin_type
+                        }
+            elif isinstance(obj, Switch) and obj_type == 'SWITCH':
+                for pin_x, pin_y, pin_type in pin_attributes:
+                    pin_x_abs = obj.x + pin_x
+                    pin_y_abs = obj.y + pin_y
+                    if is_near_pin(mouse_x, mouse_y, pin_x_abs, pin_y_abs):
+                        return {
+                            "Position": (pin_x_abs, pin_y_abs),
+                            "Object ID": obj.id,
+                            "Object Type": "SWITCH",
+                            "Pin Type": pin_type
+                        }
+            elif isinstance(obj, Light) and obj_type == 'LIGHT':
+                for pin_x, pin_y, pin_type in pin_attributes:
+                    pin_x_abs = obj.x + pin_x
+                    pin_y_abs = obj.y + pin_y
+                    if is_near_pin(mouse_x, mouse_y, pin_x_abs, pin_y_abs):
+                        return {
+                            "Position": (pin_x_abs, pin_y_abs),
+                            "Object ID": obj.id,
+                            "Object Type": "LIGHT",
+                            "Pin Type": pin_type
+                        }
+
+    return None
+
+
+def find_nearest_pin(objects, x, y, Gate, Switch, Light):
+    min_distance = float('inf')
+    nearest_pin = None
+
+    for obj in objects:
+        if isinstance(obj, Gate):
+            for pin_x, pin_y, pin_type in pin_points.get(obj.get_gate_type(), []):
+                pin_x_abs = obj.x + pin_x
+                pin_y_abs = obj.y + pin_y
+                distance = ((x - pin_x_abs) ** 2 + (y - pin_y_abs) ** 2) ** 0.5
+                if distance < min_distance:
+                    min_distance = distance
+                    nearest_pin = (pin_x_abs, pin_y_abs)
+
+        elif isinstance(obj, Switch):
+            obj_type = 'SWITCH'
+            for pin_x, pin_y, pin_type in pin_points.get(obj_type, []):
+                pin_x_abs = obj.x + pin_x
+                pin_y_abs = obj.y + pin_y
+                distance = ((x - pin_x_abs) ** 2 + (y - pin_y_abs) ** 2) ** 0.5
+                if distance < min_distance:
+                    min_distance = distance
+                    nearest_pin = (pin_x_abs, pin_y_abs)
+
+        elif isinstance(obj, Light):
+            obj_type = 'LIGHT'
+            for pin_x, pin_y, pin_type in pin_points.get(obj_type, []):
+                pin_x_abs = obj.x + pin_x
+                pin_y_abs = obj.y + pin_y
+                distance = ((x - pin_x_abs) ** 2 + (y - pin_y_abs) ** 2) ** 0.5
+                if distance < min_distance:
+                    min_distance = distance
+                    nearest_pin = (pin_x_abs, pin_y_abs)
+
+    return nearest_pin

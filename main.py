@@ -19,6 +19,30 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     for obj in objects:
         window.blit(obj.image, (obj.x, obj.y))
 
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        for obj_type, pin_attributes in pin_points.items():
+            if isinstance(obj, Gate):
+                this_gate_type = obj.get_gate_type()  # Get the gate type
+                if obj_type == this_gate_type:
+                    for pin_x, pin_y, pin_type in pin_attributes:
+                        if is_near_pin(mouse_x, mouse_y, obj.x + pin_x, obj.y + pin_y):
+                            pygame.draw.circle(
+                                window, (255, 0, 0), (obj.x + pin_x, obj.y + pin_y), 5)
+
+            elif isinstance(obj, Switch):
+                if obj_type == 'SWITCH':
+                    for pin_x, pin_y, pin_type in pin_attributes:
+                        if is_near_pin(mouse_x, mouse_y, obj.x + pin_x, obj.y + pin_y):
+                            pygame.draw.circle(
+                                window, (255, 0, 0), (obj.x + pin_x, obj.y + pin_y), 5)
+
+            elif isinstance(obj, Light):
+                if obj_type == 'LIGHT':
+                    for pin_x, pin_y, pin_type in pin_attributes:
+                        if is_near_pin(mouse_x, mouse_y, obj.x + pin_x, obj.y + pin_y):
+                            pygame.draw.circle(
+                                window, (255, 0, 0), (obj.x + pin_x, obj.y + pin_y), 5)
+
     window.blit(menu_bar, (0, 0))
 
     window.blit(AND_GATE, (and_gate_btn.x, and_gate_btn.y))
@@ -34,14 +58,12 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
         window.blit(cable_bg, (cable_btn.x - 5, 5))
 
     for cable in cables:
-        start_obj = get_obj_by_id(cable.obj_connection_1)
-        end_obj = get_obj_by_id(cable.obj_connection_2)
+        start_point = get_obj_by_id(cable.line_start)
+        end_point = get_obj_by_id(cable.line_end)
 
-        if start_obj and end_obj:
-            start = (start_obj.x + SYMBOL_WIDTH // 2,
-                     start_obj.y + SYMBOL_HEIGHT // 2)
-            end = (end_obj.x + SYMBOL_WIDTH // 2,
-                   end_obj.y + SYMBOL_HEIGHT // 2)
+        if start_point and end_point:
+            start = (start_point.x, start_point.y)
+            end = (end_point.x, end_point.y)
 
             if cable.state == True:
                 pygame.draw.line(window, WIRE_COLOR_ACTIVE, start, end, 3)
@@ -50,6 +72,8 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
 
     if line_start is not None and line_end is not None:
         pygame.draw.line(window, WIRE_COLOR, line_start, line_end, 3)
+    else:
+        pass
 
     window.blit(CABLE, (cable_btn.x, cable_btn.y))
 
@@ -138,16 +162,17 @@ def main():
                     # double click
                     if current_time - last_click_time <= DOUBLE_CLICK_TIME_THRESHOLD:
                         mouse_x, mouse_y = event.pos
-                        double_clicked_object = get_obj_by_position(
-                            mouse_x, mouse_y, objects)
+                        try:
+                            double_clicked_object = get_obj_by_position(
+                                mouse_x, mouse_y, objects)
 
-                        double_clicked_object.print_cables()
+                            double_clicked_object.print_cables()
 
-                        if hasattr(double_clicked_object, "switch"):
-                            toggleSwitch(double_clicked_object)
-
-                        else:
+                            if hasattr(double_clicked_object, "switch"):
+                                toggleSwitch(double_clicked_object)
+                        except:
                             pass
+
                     last_click_time = current_time
 
             # drag mouse
@@ -166,12 +191,12 @@ def main():
                 else:
                     objects.remove(dragging_object)
 
-            # Cable mode on
+            # When Cable mode on
             if event.type == pygame.MOUSEBUTTONDOWN and cable_mode:
                 global line_start
                 x, y = event.pos
-                if line_start is None and y > SYMBOL_HEIGHT:
-                    line_start = event.pos
+                line_start = find_nearest_pin(
+                    objects, x, y, Gate, Switch, Light)
 
             if event.type == pygame.MOUSEMOTION and cable_mode:
                 global line_end
@@ -184,23 +209,22 @@ def main():
                         c1, c2 = line_start
                         c3, c4 = line_end
 
-                        obj_connection_1 = get_obj_by_position(c1, c2, objects)
-                        obj_connection_2 = get_obj_by_position(c3, c4, objects)
+                        start_pin = check_red_marker_click(
+                            c1, c2, Gate, Switch, Light)
+                        end_pin = check_red_marker_click(
+                            c3, c4, Gate, Switch, Light)
 
-                        if (isinstance(obj_connection_1, Switch) and isinstance(obj_connection_2, Switch)) or (isinstance(obj_connection_1, Light) and isinstance(obj_connection_2, Light)):
+                        # both output or input - not possible
+                        if start_pin.get("Pin Type") == end_pin.get("Pin Type"):
                             line_start = None
                             line_end = None
 
                         else:
-                            print(
-                                f'Connections: {obj_connection_1.id}/{obj_connection_2.id}')
-
                             new_cable = Cable(
-                                len(cables), obj_connection_1.id, obj_connection_2.id, False)
+                                len(cables), start_pin.get('Position'), end_pin.get('Position'), False)
                             cables.append(new_cable)
 
-                            connect_cable(obj_connection_1.id,
-                                          obj_connection_2.id, False)
+                            # connect_cable(obj_connection_1.id,obj_connection_2.id, False)
 
                             line_start = None
                             line_end = None
@@ -227,6 +251,13 @@ def main():
             # middle mouse
             if event.type == pygame.MOUSEMOTION and panning == True:
                 drag_screen(event.rel, objects, Gate)
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_x, mouse_y = event.pos
+                clicked_pin_info = check_red_marker_click(
+                    mouse_x, mouse_y, Gate, Switch, Light)
+                if clicked_pin_info:
+                    print(f"Clicked Red Marker Info: {clicked_pin_info}")
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
                     nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)

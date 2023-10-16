@@ -16,17 +16,15 @@ class DrawableObject:
             print(f'Input cables of {self.id} - {self.input_cables}')
 
 
-def connect_cable(object_1, object_2, cable_state):
-    object_1.input_cables[object_2.id] = cable_state
-    object_2.input_cables[object_1.id] = cable_state
-
-
 class Gate(DrawableObject):
     def __init__(self, _id, gate_type, image, x, y, num_inputs):
         super().__init__(_id, image, x, y)
         self.gate_type = gate_type
         self.num_inputs = num_inputs
         self.output = False
+
+    def get_gate_type(self):
+        return self.gate_type
 
     # calc output
     def update(self):
@@ -70,31 +68,39 @@ class Light(DrawableObject):
 
 
 class Cable():
-    def __init__(self, _id, obj_connection_1, obj_connection_2, state):
+    def __init__(self, _id, line_start, line_end, state):
         self.id = _id
-        self.obj_connection_1 = obj_connection_1
-        self.obj_connection_2 = obj_connection_2
+        self.line_start = line_start
+        self.line_end = line_end
         self.state = state  # true or false
 
-    def update(self):
-        obj1 = get_obj_by_id(self.obj_connection_1)
-        obj2 = get_obj_by_id(self.obj_connection_2)
+        # self.obj_connection_1 = obj_connection_1
+        # self.obj_connection_2 = obj_connection_2
 
-        # check if connection is switch and inherit state
-        if isinstance(obj1, Switch):
-            self.state = obj1.state
-        elif isinstance(obj2, Switch):
-            self.state = obj2.state
+    # def update(self):
+    #     obj1 = get_obj_by_id(self.obj_connection_1)
+    #     obj2 = get_obj_by_id(self.obj_connection_2)
 
-        elif isinstance(obj2, Gate):
-            self.state = obj2.state
-        elif isinstance(obj2, Gate):
-            self.state = obj2.state
+    #     # check if connection is switch and inherit state
+    #     if isinstance(obj1, Switch):
+    #         self.state = obj1.state
+    #     elif isinstance(obj2, Switch):
+    #         self.state = obj2.state
 
-        else:
-            self.state = False
+    #     elif isinstance(obj2, Gate):
+    #         self.state = obj2.state
+    #     elif isinstance(obj2, Gate):
+    #         self.state = obj2.state
 
-        if self.state == True:
-            connect_cable(obj1, obj2, True)
-        elif self.state == False:
-            connect_cable(obj1, obj2, False)
+    #     else:
+    #         self.state = False
+
+    #     if self.state == True:
+    #         connect_cable(obj1, obj2, True)
+    #     elif self.state == False:
+    #         connect_cable(obj1, obj2, False)
+
+
+# def connect_cable(object_1, object_2, cable_state):
+#     object_1.input_cables[object_2.id] = cable_state
+#     object_2.input_cables[object_1.id] = cable_state
