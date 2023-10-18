@@ -180,15 +180,12 @@ def main():
             if event.type == pygame.MOUSEMOTION and cable_mode == False:
                 if dragging_object != None:
                     mouse_x, mouse_y = event.pos
-                    pan_x, pan_y = event.rel
 
                     dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
                     dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
-
-                    for cable in dragging_object.input_cables:
-                        # bug other cable as well and it is not at the pin yet
-                        cable.pin1 = (dragging_object.x + pan_x,
-                                      dragging_object.y + pan_y)
+                    for cable in cables:
+                        cable.update(mouse_x, mouse_y, cable,
+                                     dragging_object, Gate, Light, Switch)
 
             # release obj
             if event.type == pygame.MOUSEBUTTONUP and dragging_object is not None:
