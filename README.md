@@ -21,8 +21,23 @@ Digital Logic Simulator is a Python-based application that allows users to desig
 Install the required dependencies
 
    ```bash
-pip install pygame
+   pip install pygame
+
 
 Run the main Python script
+
    ```bash
-python main.py
+   python main.py
+
+## Usage
+
+Left-click to select and move objects (gates, switches, lights).
+Double-click on switches to toggle their state.
+Right-click on objects to access a context menu for more options. (coming maybe soon)
+Enable cable mode by clicking on the cable icon in the menu. Connect objects by clicking and dragging from one pin to another.
+Scroll with the middle mouse button to pan the view.
+
+
+## Bugs
+
+There are still some Bugs to fix and features to add.
