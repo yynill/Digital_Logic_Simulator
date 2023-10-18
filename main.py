@@ -19,6 +19,12 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     for obj in objects:
         window.blit(obj.image, (obj.x, obj.y))
 
+        if isinstance(obj, Light):
+            obj.update()
+
+        if isinstance(obj, Gate):
+            obj.update()
+
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for obj_type, pin_attributes in pin_points.items():
             if isinstance(obj, Gate):
@@ -57,23 +63,18 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     if cable_mode == True:
         window.blit(cable_bg, (cable_btn.x - 5, 5))
 
-    for cable in cables:
-        start_point = get_obj_by_id(cable.line_start)
-        end_point = get_obj_by_id(cable.line_end)
-
-        if start_point and end_point:
-            start = (start_point.x, start_point.y)
-            end = (end_point.x, end_point.y)
-
-            if cable.state == True:
-                pygame.draw.line(window, WIRE_COLOR_ACTIVE, start, end, 3)
-            elif cable.state == False:
-                pygame.draw.line(window, WIRE_COLOR, start, end, 3)
-
     if line_start is not None and line_end is not None:
         pygame.draw.line(window, WIRE_COLOR, line_start, line_end, 3)
     else:
         pass
+
+    for cable in cables:
+        if cable.state == True:
+            pygame.draw.line(window, WIRE_COLOR_ACTIVE,
+                             cable.pin1, cable.pin2, 3)
+        elif cable.state == False:
+            pygame.draw.line(window, WIRE_COLOR,
+                             cable.pin1, cable.pin2, 3)
 
     window.blit(CABLE, (cable_btn.x, cable_btn.y))
 
@@ -179,9 +180,15 @@ def main():
             if event.type == pygame.MOUSEMOTION and cable_mode == False:
                 if dragging_object != None:
                     mouse_x, mouse_y = event.pos
+                    pan_x, pan_y = event.rel
 
                     dragging_object.x = mouse_x - SYMBOL_WIDTH // 2
                     dragging_object.y = mouse_y - SYMBOL_HEIGHT // 2
+
+                    for cable in dragging_object.input_cables:
+                        # bug other cable as well and it is not at the pin yet
+                        cable.pin1 = (dragging_object.x + pan_x,
+                                      dragging_object.y + pan_y)
 
             # release obj
             if event.type == pygame.MOUSEBUTTONUP and dragging_object is not None:
@@ -206,28 +213,28 @@ def main():
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1 and cable_mode and line_start is not None:
                     try:
-                        c1, c2 = line_start
-                        c3, c4 = line_end
+                        pin1_x, pin1_y = find_nearest_pin(
+                            objects, line_start[0], line_start[1], Gate, Switch, Light)
+                        pin2_x, pin2_y = find_nearest_pin(
+                            objects, line_end[0], line_end[1], Gate, Switch, Light)
 
-                        start_pin = check_red_marker_click(
-                            c1, c2, Gate, Switch, Light)
-                        end_pin = check_red_marker_click(
-                            c3, c4, Gate, Switch, Light)
+                        pin1_type = check_red_marker_click(
+                            pin1_x, pin1_y, Gate, Switch, Light).get("Pin Type")
+                        pin2_type = check_red_marker_click(
+                            pin2_x, pin2_y, Gate, Switch, Light).get("Pin Type")
 
-                        # both output or input - not possible
-                        if start_pin.get("Pin Type") == end_pin.get("Pin Type"):
-                            line_start = None
-                            line_end = None
+                        print(pin1_type, pin1_x, pin1_y)
+                        print(pin2_type, pin2_x, pin2_y)
 
-                        else:
-                            new_cable = Cable(
-                                len(cables), start_pin.get('Position'), end_pin.get('Position'), False)
-                            cables.append(new_cable)
+                        new_cable = Cable(
+                            len(cables), (pin1_x, pin1_y), (pin2_x, pin2_y), True)
+                        cables.append(new_cable)
 
-                            # connect_cable(obj_connection_1.id,obj_connection_2.id, False)
+                        connect_input_ouput(
+                            pin1_type, pin2_type, pin1_x, pin1_y, pin2_x, pin2_y, Gate, Light, Switch, new_cable)
 
-                            line_start = None
-                            line_end = None
+                        line_start = None
+                        line_end = None
 
                     except Exception as e:
                         line_start = None
@@ -241,7 +248,8 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:  # right click
                     mouse_x, mouse_y = event.pos
-                    this_obj = get_obj_by_position(mouse_x, mouse_y, objects)
+                    this_obj = get_obj_by_position(
+                        mouse_x, mouse_y, objects)
                     right_click_menu = create_right_click_menu(this_obj)
                     right_click_menu_visible = True
                 elif event.button == 2:
@@ -250,7 +258,7 @@ def main():
 
             # middle mouse
             if event.type == pygame.MOUSEMOTION and panning == True:
-                drag_screen(event.rel, objects, Gate)
+                drag_screen(event.rel, objects, cables)
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_x, mouse_y = event.pos
@@ -258,6 +266,7 @@ def main():
                     mouse_x, mouse_y, Gate, Switch, Light)
                 if clicked_pin_info:
                     print(f"Clicked Red Marker Info: {clicked_pin_info}")
+                    # cable_mode = True
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
                     nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)

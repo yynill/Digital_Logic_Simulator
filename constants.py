@@ -20,10 +20,10 @@ LIGHT_HEIGHT = 55
 SWITCH_WIDTH = 33
 SWITCH_HEIGHT = 55
 
-INPUT_REGION_WIDTH = SYMBOL_WIDTH/2
+INPUT_REGION_WIDTH = SYMBOL_WIDTH//2
 
-INPUT_REGION_HEIGHT = SYMBOL_HEIGHT/2
-OUTPUT_REGION_HEIGHT = SYMBOL_HEIGHT/2
+INPUT_REGION_HEIGHT = SYMBOL_HEIGHT//2
+OUTPUT_REGION_HEIGHT = SYMBOL_HEIGHT//2
 
 # load images
 
@@ -78,9 +78,9 @@ pin_points = {
     'NOR_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
     'NOT_GATE': [(18, 0, 'output'), (18, 55, 'input')],
 
-    'SWITCH': [(SWITCH_WIDTH/2, 0, 'output')],
+    'SWITCH': [(SWITCH_WIDTH//2, 0, 'output')],
 
-    'LIGHT': [(LIGHT_WIDTH/2, LIGHT_HEIGHT, 'input')],
+    'LIGHT': [(LIGHT_WIDTH//2, LIGHT_HEIGHT, 'input')],
 }
 
 switch_images = {

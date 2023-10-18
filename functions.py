@@ -17,13 +17,18 @@ def get_obj_by_id(obj_id):
     return None
 
 
-def drag_screen(event, objects, Gate):
+def drag_screen(event, objects, cables):
 
     pan_x, pan_y = event
 
     for obj in objects:
         obj.x += pan_x
         obj.y += pan_y
+    for cbl in cables:
+        cbl.pin1[0] += pan_x
+        cbl.pin1[1] += pan_y
+        cbl.pin2[0] += pan_x
+        cbl.pin2[1] += pan_y
 
     # think about zoom in and out
 
@@ -105,7 +110,7 @@ def find_nearest_pin(objects, x, y, Gate, Switch, Light):
                 distance = ((x - pin_x_abs) ** 2 + (y - pin_y_abs) ** 2) ** 0.5
                 if distance < min_distance:
                     min_distance = distance
-                    nearest_pin = (pin_x_abs, pin_y_abs)
+                    nearest_pin = [pin_x_abs, pin_y_abs]
 
         elif isinstance(obj, Switch):
             obj_type = 'SWITCH'
@@ -115,7 +120,7 @@ def find_nearest_pin(objects, x, y, Gate, Switch, Light):
                 distance = ((x - pin_x_abs) ** 2 + (y - pin_y_abs) ** 2) ** 0.5
                 if distance < min_distance:
                     min_distance = distance
-                    nearest_pin = (pin_x_abs, pin_y_abs)
+                    nearest_pin = [pin_x_abs, pin_y_abs]
 
         elif isinstance(obj, Light):
             obj_type = 'LIGHT'
@@ -125,6 +130,48 @@ def find_nearest_pin(objects, x, y, Gate, Switch, Light):
                 distance = ((x - pin_x_abs) ** 2 + (y - pin_y_abs) ** 2) ** 0.5
                 if distance < min_distance:
                     min_distance = distance
-                    nearest_pin = (pin_x_abs, pin_y_abs)
+                    nearest_pin = [pin_x_abs, pin_y_abs]
 
     return nearest_pin
+
+
+def find_object_by_pin(pin_x, pin_y, objects):
+    nearest_object = None
+    nearest_distance = float('inf')
+
+    for obj in objects:
+        for obj_type, pin_attributes in pin_points.items():
+            for pin_xu, pin_yu, pin_type in pin_attributes:
+                pin_x_abs = obj.x + pin_xu
+                pin_y_abs = obj.y + pin_yu
+                distance = ((pin_x_abs - pin_x) ** 2 +
+                            (pin_y_abs - pin_y) ** 2) ** 0.5
+                if distance < nearest_distance:
+                    nearest_distance = distance
+                    nearest_object = obj
+
+    return nearest_object
+
+# get the conected obj
+# on the pin, whhere if pin = input
+# append cables into {self.input_cables}
+
+
+def connect_input_ouput(pin1_type, pin2_type, pin1_x, pin1_y, pin2_x, pin2_y, Gate, Light, Switch, new_cable):
+    if (pin1_type == 'input' and pin2_type == 'output') or (pin1_type == 'output' and pin2_type == 'input'):
+
+        nearest_obj1 = find_object_by_pin(
+            pin1_x, pin1_y, objects)
+
+        nearest_obj2 = find_object_by_pin(
+            pin2_x, pin2_y, objects)
+
+        print(nearest_obj1.id)
+        print(nearest_obj2.id)
+
+        if pin1_type == 'input':
+            nearest_obj1.input_cables.append(new_cable)
+            nearest_obj2.output_cables.append(new_cable)
+        else:
+            nearest_obj1.output_cables.append(new_cable)
+            nearest_obj2.input_cables.append(new_cable)
