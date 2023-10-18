@@ -152,10 +152,6 @@ def find_object_by_pin(pin_x, pin_y, objects):
 
     return nearest_object
 
-# get the conected obj
-# on the pin, whhere if pin = input
-# append cables into {self.input_cables}
-
 
 def connect_input_ouput(pin1_type, pin2_type, pin1_x, pin1_y, pin2_x, pin2_y, Gate, Light, Switch, new_cable):
     if (pin1_type == 'input' and pin2_type == 'output') or (pin1_type == 'output' and pin2_type == 'input'):

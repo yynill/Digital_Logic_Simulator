@@ -23,12 +23,14 @@ def check_menu_switch_click(mouse_x, mouse_y):
 
 def check_menu_light_click(mouse_x, mouse_y):
     new_light_type = None
+
     if 7*(SYMBOL_WIDTH+10) + 10 < mouse_x < (7*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH and mouse_y < SYMBOL_HEIGHT:
         new_light_type = 'LIGHT_OFF'
 
     if new_light_type is not None:
         new_light = Light(len(objects), False,
                           light_images[new_light_type], mouse_x, mouse_y)
+
         global cable_mode
         cable_mode = False
 

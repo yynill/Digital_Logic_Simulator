@@ -72,7 +72,7 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
         if cable.state == True:
             pygame.draw.line(window, WIRE_COLOR_ACTIVE,
                              cable.pin1, cable.pin2, 3)
-        elif cable.state == False:
+        else:
             pygame.draw.line(window, WIRE_COLOR,
                              cable.pin1, cable.pin2, 3)
 
@@ -227,7 +227,7 @@ def main():
                         print(pin2_type, pin2_x, pin2_y)
 
                         new_cable = Cable(
-                            len(cables), (pin1_x, pin1_y), (pin2_x, pin2_y), True)
+                            len(cables), [pin1_x, pin1_y], [pin2_x, pin2_y], True)
                         cables.append(new_cable)
 
                         connect_input_ouput(
@@ -266,7 +266,6 @@ def main():
                     mouse_x, mouse_y, Gate, Switch, Light)
                 if clicked_pin_info:
                     print(f"Clicked Red Marker Info: {clicked_pin_info}")
-                    # cable_mode = True
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
                     nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)
