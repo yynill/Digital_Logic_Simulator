@@ -42,6 +42,9 @@ NAND_GATE = pygame.transform.scale(NAND_IMG, (SYMBOL_WIDTH, SYMBOL_HEIGHT))
 NOR_IMG = pygame.image.load('./ASSETS/NOR.png')
 NOR_GATE = pygame.transform.scale(NOR_IMG, (SYMBOL_WIDTH, SYMBOL_HEIGHT))
 
+XOR_IMG = pygame.image.load('./ASSETS/XOR.png')
+XOR_GATE = pygame.transform.scale(XOR_IMG, (SYMBOL_WIDTH, SYMBOL_HEIGHT))
+
 
 SWITCH_OFF_IMG = pygame.image.load('./ASSETS/SWITCH_OFF.png')
 SWITCH_OFF = pygame.transform.scale(
@@ -68,7 +71,8 @@ gate_images = {
     'NOT_GATE': NOT_GATE,
     'OR_GATE': OR_GATE,
     'NAND_GATE': NAND_GATE,
-    'NOR_GATE': NOR_GATE
+    'NOR_GATE': NOR_GATE,
+    'XOR_GATE': XOR_GATE
 }
 
 pin_points = {
@@ -77,6 +81,8 @@ pin_points = {
     'NAND_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
     'NOR_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
     'NOT_GATE': [(18, 0, 'output'), (18, 55, 'input')],
+    'XOR_GATE': [(18, 0, 'output'), (9, 55, 'input'), (27, 55, 'input')],
+
 
     'SWITCH': [(SWITCH_WIDTH//2, 0, 'output')],
 

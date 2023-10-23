@@ -29,5 +29,9 @@ def gate_logic_algo(inputs, gate_type):
 
             elif gate_type == 'NOR_GATE':
                 return not gate_logic_algo(inputs, 'OR_GATE')
+
+            elif gate_type == 'XOR_GATE':
+                if input1 != input2:
+                    return True
     else:
         return False

@@ -13,7 +13,7 @@ def check_cable_click(mouse_x, mouse_y):
 
 
 def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end):
+                nand_gate_btn, nor_gate_btn, xor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end):
     window.fill(BACKGROUND_COLOR)
 
     for obj in objects:
@@ -56,6 +56,7 @@ def draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
     window.blit(OR_GATE, (or_gate_btn.x, or_gate_btn.y))
     window.blit(NAND_GATE, (nand_gate_btn.x, nand_gate_btn.y))
     window.blit(NOR_GATE, (nor_gate_btn.x, nor_gate_btn.y))
+    window.blit(XOR_GATE, (xor_gate_btn.x, xor_gate_btn.y))
 
     window.blit(SWITCH_OFF, (switch_off_btn.x, switch_off_btn.y))
     window.blit(LIGHT_OFF, (light_off_btn.x, light_off_btn.y))
@@ -111,6 +112,9 @@ def main():
         3*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
     nor_gate_btn = pygame.Rect(
         4*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
+
+    xor_gate_btn = pygame.Rect(
+        5*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
 
     switch_off_btn = pygame.Rect(
         6*(SYMBOL_WIDTH+10) + 10, 10, SYMBOL_WIDTH, SYMBOL_HEIGHT + 20)
@@ -265,7 +269,7 @@ def main():
                     print(f"Clicked Red Marker Info: {clicked_pin_info}")
 
         draw_window(menu_bar, and_gate_btn, not_gate_btn, or_gate_btn,
-                    nand_gate_btn, nor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)
+                    nand_gate_btn, nor_gate_btn, xor_gate_btn, objects, switch_off_btn, light_off_btn, cable_btn, cable_bg, line_start, line_end)
 
     pygame.quit()
 

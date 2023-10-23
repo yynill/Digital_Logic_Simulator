@@ -59,6 +59,9 @@ def check_menu_gate_click(mouse_x, mouse_y):
         # NOR-GATE
         if 4*(SYMBOL_WIDTH+10) + 10 < mouse_x < (4*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
             new_gate_type = 'NOR_GATE'
+        # XOR-GATE
+        if 4*(SYMBOL_WIDTH+10) + 10 < mouse_x < (5*(SYMBOL_WIDTH+10) + 10) + SYMBOL_WIDTH:
+            new_gate_type = 'XOR_GATE'
 
         if new_gate_type is not None:
 
